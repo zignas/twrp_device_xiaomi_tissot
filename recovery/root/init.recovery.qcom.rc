@@ -25,31 +25,19 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import /init.recovery.qcom_decrypt.rc
+
+on init
+    write /sys/class/leds/lcd-backlight/brightness 85
+
+    # Create location for fs_mgr to store abbreviated output from filesystem
+    # checker programs.
+    mkdir /dev/fscklogs 0770 root system
+
 on fs
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
-    chmod 0660 /dev/qseecom
-    chown system drmrpc /dev/qseecom
-    chmod 0664 /dev/ion
-    chown system system /dev/ion
-    start pulldecryptfiles
-    install_keyring
-    setprop ro.build.system_root_image true
-    setprop ro.hardware.bootctrl msm8953
 
-    chmod 0777 /dev/qseecom
-    chmod 0664 /dev/ion
-    chown system system /dev/ion
-
-    start hwservicemanager
-    start servicemanager
-
-on property:ro.crypto.state=encrypted
-    start sbinqseecomd
-
-# Separate copy needed to use /sbin/linker64 instead of /system/bin/linker64
-service sbinqseecomd /sbin/qseecomd
-    disabled
-    user root
-    group root
-    seclabel u:r:recovery:s0
+    # Set fscklog permission
+    chown root system /dev/fscklogs/log
+    chmod 0770 /dev/fscklogs/log

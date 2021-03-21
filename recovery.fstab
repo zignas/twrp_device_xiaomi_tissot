@@ -1,0 +1,31 @@
+# Android fstab file.
+# The filesystem that contains the filesystem checker binary (typically /system) cannot
+# specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
+
+# mount point    fstype     device                 device2                      	  flags
+
+/boot            emmc              /dev/block/bootdevice/by-name/boot       	flags=slotselect;backup=1;flashimg=1
+/system          ext4              /dev/block/bootdevice/by-name/system     	flags=slotselect;wipeingui;backup=1;flashimg=1
+/system_image    emmc              /dev/block/bootdevice/by-name/system     	flags=slotselect;backup=1
+/splash          emmc              /dev/block/bootdevice/by-name/splash    	flags=display="Splash Image";backup=1;flashimg=1
+/data            ext4              /dev/block/bootdevice/by-name/userdata   	flags=encryptable=footer
+/persist_image   emmc              /dev/block/bootdevice/by-name/persist     flags=display="Persist";backup=1;flashimg=1
+/misc            emmc              /dev/block/bootdevice/by-name/misc
+/modem		 emmc              /dev/block/bootdevice/by-name/modem      	flags=slotselect;backup=1;display="Modem";flashimg=1;backup=1
+/efs1            emmc              /dev/block/bootdevice/by-name/modemst1   	flags=backup=1;display="EFS1";flashimg=1
+/efs2            emmc              /dev/block/bootdevice/by-name/modemst2   	flags=backup=1;display="EFS2";flashimg=1;subpartitionof=/efs1
+
+# Removable storage
+/external_sd     vfat              /dev/block/mmcblk1p1    /dev/block/mmcblk1   flags=removable;storage;display="External SD Card";wipeingui
+/usb-otg         auto              /dev/block/sda1         /dev/block/sda  		flags=removable;storage;display="USB OTG"
+
+# About vendor partition:
+# Our device (MI A1) doesn't have vendor partition
+# coz it relased with android 7, so we need to hide it
+# to prevent errors like
+# "unable to mount /vendor" - if device on stock partition layout
+# or
+# "unable to find partition for path /vendor" - while installing payload ROM's if device on stock part. layout and we simply shrink mount point in fstab 
+# That "hint" break's capability for repartitioned users, so they need to use spec. twrp with tissot manager in it
+
+/vendor          emmc              /dev/block/bootdevice/by-name/vendor
